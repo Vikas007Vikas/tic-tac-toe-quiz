@@ -29,5 +29,39 @@ contract TicTacToe
          Board.push(temp);
      }
  }
+ 
+ function RegisterUser() public
+ {
+    require(address1!=msg.sender && address2!=msg.sender && num<2,"Invalid user");
+    if(num==0)
+    {
+        address1 = msg.sender;
+    }
+    else
+    {
+        address2 = msg.sender;
+    }
+    num++;
+ }
+ 
+ function StartGame() public returns uint
+ {
+    require(num==2 && msg.sender==Owner,"Invalid player");
+    bool check;
+    while(1)
+    {
+        take_input();
+        check = CheckWinner();
+        if(check)
+        {
+            return turn;
+        }
+        if(turn==1)
+            turn = 2; 
+        else
+            turn = 1;
+        
+    }
+ }
 }
 

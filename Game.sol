@@ -3,7 +3,7 @@ pragma solidity ^0.4.25;
 contract TicTacToe
 {
  
- uint[][] public Board;
+ uint[100][100] public Board;
  uint n;
  uint starttime;
  uint gametime;
@@ -27,14 +27,10 @@ contract TicTacToe
      n = _n;
      uint i;
      uint j;
-     uint[] temp;
      for(i=0;i<n;i++)
      {
-         temp.push(0);
-     }
-     for(i=0;i<n;i++)
-     {
-         Board.push(temp);
+         for(j=0;j<n;j++)
+         Board[i][j]=0;
      }
      gametime = _gametime;
      fee = _gamefee;
@@ -61,14 +57,16 @@ contract TicTacToe
  {
     require(num==2 && msg.sender==Owner,"Invalid player");
     starttime  = now;
+    turn = 1;
  }
  
- function take_input(uint x,uint y) public returns(uint[])
+ function take_input(uint x,uint y) public 
  {
+   require(starttime!=0,"Game not started");
    require((msg.sender==address1 && turn==1) || (msg.sender==address2 && turn==2));
    require(0<=x && x<n && 0<=y && y<n,"Invalid argument");
    require(Board[x][y]==0,"Invalid argument");
-   require(starttime+(count1+count2)*gametime>=now && now<=starttime+(count1+count2+1)*gametime,"Invalid time");
+  require(starttime+(count1+count2)*gametime>=now && now<=starttime+(count1+count2+1)*gametime,"Invalid time");
    Board[x][y] = turn;
    if(turn ==1)
    {

@@ -63,5 +63,23 @@ contract TicTacToe
         
     }
  }
+ 
+ function take_input(uint x,uint y) public returns uint[]
+ {
+   require((msg.sender==address1 && turn==1) || (msg.sender==address2 && turn==2));
+   require(0<=x && x<n && 0<=y && y<n,"Invalid argument");
+   require(Board[x][y]==0,"Invalid argument");
+   Board[x][y] = turn;
+ }
+ 
+ function CheckWinner() public returns bool
+ {
+     uint i;
+     uint j;
+     for(i=0;i<n;i++)
+     {
+        if()
+     }
+ }
 }
 

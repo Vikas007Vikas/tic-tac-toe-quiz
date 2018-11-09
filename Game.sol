@@ -5,16 +5,23 @@ contract TicTacToe
  
  uint[][] public Board;
  uint n;
- 
+ uint starttime;
+ uint gametime;
+ uint count1=0;
+ uint count2=0;
  address Owner;
  address address1;
  address address2;
- 
+ uint value1;
+ uint value2;
+ uint fee;
  //number of players
  uint num = 0;
  uint turn = 1;
+ uint winner  = 0;
+ uint paid = 0;
  
- constructor(uint _n) public
+ constructor(uint _n,uint _gametime,uint _gamefee) public
  {
      Owner = msg.sender;
      n = _n;
@@ -29,18 +36,23 @@ contract TicTacToe
      {
          Board.push(temp);
      }
+     gametime = _gametime;
+     fee = _gamefee;
  }
  
- function RegisterUser() public
+ function RegisterUser() public payable
  {
-    require(address1!=msg.sender && address2!=msg.sender && num<2,"Invalid user");
+    require(address1!=msg.sender && address2!=msg.sender && num<2 ,"Invalid user");
+    require(msg.value>=fee,"Less fee");
     if(num==0)
     {
         address1 = msg.sender;
+        value1=(msg.value-fee);
     }
     else
     {
         address2 = msg.sender;
+        value2=(msg.value-fee);
     }
     num++;
  }
@@ -48,21 +60,7 @@ contract TicTacToe
  function StartGame() public returns(uint)
  {
     require(num==2 && msg.sender==Owner,"Invalid player");
-    bool check;
-    while(true)
-    {
-        take_input();
-        check = CheckWinner();
-        if(check)
-        {
-            return turn;
-        }
-        if(turn==1)
-            turn = 2; 
-        else
-            turn = 1;
-        
-    }
+    starttime  = now;
  }
  
  function take_input(uint x,uint y) public returns(uint[])
@@ -70,11 +68,55 @@ contract TicTacToe
    require((msg.sender==address1 && turn==1) || (msg.sender==address2 && turn==2));
    require(0<=x && x<n && 0<=y && y<n,"Invalid argument");
    require(Board[x][y]==0,"Invalid argument");
+   require(starttime+(count1+count2)*gametime>=now && now<=starttime+(count1+count2+1)*gametime,"Invalid time");
    Board[x][y] = turn;
+   if(turn ==1)
+   {
+    turn = 2;
+    count1++;
+   }
+   else
+   {
+    turn = 1;
+    count2++;
+   }
  }
  
- function CheckWinner() public returns(bool)
+ function Pay() public
  {
+     require(winner!=0,"Winner not yet decided");
+     require(paid==0,"Already paid");
+    if(winner==1)
+    {
+        address1.transfer(value1+2*fee);
+        value1 = 0;
+        address2.transfer(value2);
+        value2 = 0;
+    }
+    else
+    {
+        address2.transfer(value2+2*fee);
+        value2 = 0;
+        address1.transfer(value1);
+        value1 = 0;
+    }
+    paid = 1;
+ }
+ 
+ function CheckWinner() public
+ {
+    require(winner==0,"Winner already delcared");
+    require(msg.sender==Owner,"You can't call");
+    if(turn==1 && now>=starttime+(count1+count2+1)*gametime)
+    {
+        winner = 2;
+        return;
+    }
+    if(turn==2 && now>=starttime+(count1+count2+1)*gametime)
+    {
+        winner = 1;
+        return;
+    }
      uint i;
      uint j;
      uint k;
@@ -94,7 +136,10 @@ contract TicTacToe
                     }
                 }
                 if(flag==0)
-                return true;
+                {
+                    winner = k;
+                    return;
+                }
             }
         for(j=0;j<n;j++)
         {
@@ -107,8 +152,11 @@ contract TicTacToe
                     break;
                 }
             }
-            if(flag==0)
-            return true;
+           if(flag==0)
+                {
+                    winner = k;
+                    return;
+                }
         }
         flag=0;
         for(i=0;i<n;i++)
@@ -120,7 +168,10 @@ contract TicTacToe
             }
         }
         if(flag==0)
-            return true;
+                {
+                    winner = k;
+                    return;
+                }
         flag=0;
         for(i=0;i<n;i++)
         {
@@ -130,10 +181,12 @@ contract TicTacToe
                 break;
             }
         }
-        if(flag==0)
-        return true;
-     }
-     return false;
+      if(flag==0)
+                {
+                    winner = k;
+                    return;
+                }
+        }
  }
 }
 

@@ -12,6 +12,7 @@ contract TicTacToe
  
  //number of players
  uint num = 0;
+ uint turn = 1;
  
  constructor(uint _n) public
  {
@@ -44,11 +45,11 @@ contract TicTacToe
     num++;
  }
  
- function StartGame() public returns uint
+ function StartGame() public returns(uint)
  {
     require(num==2 && msg.sender==Owner,"Invalid player");
     bool check;
-    while(1)
+    while(true)
     {
         take_input();
         check = CheckWinner();
@@ -64,7 +65,7 @@ contract TicTacToe
     }
  }
  
- function take_input(uint x,uint y) public returns uint[]
+ function take_input(uint x,uint y) public returns(uint[])
  {
    require((msg.sender==address1 && turn==1) || (msg.sender==address2 && turn==2));
    require(0<=x && x<n && 0<=y && y<n,"Invalid argument");
@@ -72,14 +73,67 @@ contract TicTacToe
    Board[x][y] = turn;
  }
  
- function CheckWinner() public returns bool
+ function CheckWinner() public returns(bool)
  {
      uint i;
      uint j;
-     for(i=0;i<n;i++)
-     {
-        if()
+     uint k;
+     uint flag;
+     for(k=1;k<=2;k++)
+        { 
+            
+        for(i=0;i<n;i++)
+            {
+                flag=0;
+                for(j=0;j<n;j++)
+                {
+                    if(Board[i][j]!=k)
+                    {
+                        flag=1;
+                        break;
+                    }
+                }
+                if(flag==0)
+                return true;
+            }
+        for(j=0;j<n;j++)
+        {
+            flag=0;
+            for(i=0;i<n;i++)
+            {
+                if(Board[i][j]!=k)
+                {
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==0)
+            return true;
+        }
+        flag=0;
+        for(i=0;i<n;i++)
+        {
+            if(Board[i][i]!=k)
+            {
+                flag=1;
+                break;
+            }
+        }
+        if(flag==0)
+            return true;
+        flag=0;
+        for(i=0;i<n;i++)
+        {
+            if(Board[i][n-1-i]!=k)
+            {
+                flag=1;
+                break;
+            }
+        }
+        if(flag==0)
+        return true;
      }
+     return false;
  }
 }
 
